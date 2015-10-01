@@ -1,0 +1,152 @@
+---
+title: "HW1Part3"
+author: "Yang Ge"
+date: "September 28, 2015"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setoptions, echo=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# Question 18
+
+We first read the data, and patch x0 to x and split x and y.
+
+```{r preprocess.trn}
+data <- read.table("ntumlone_hw1_hw1_18_train.dat", header = FALSE)
+m <- data.matrix(data)
+m <- cbind(matrix(1, nrow(m), 1), m)
+x.trn <- t(m[,-ncol(m)])
+y.trn <- m[,ncol(m)]
+```
+
+```{r preprocess.tst}
+data <- read.table("ntumlone_hw1_hw1_18_test.dat", header = FALSE)
+m <- data.matrix(data)
+m <- cbind(matrix(1, nrow(m), 1), m)
+x.tst <- t(m[,-ncol(m)])
+y.tst <- m[,ncol(m)]
+```
+
+```{r q18}
+err.vector <- matrix(0, 1, 2000)
+for (i in 1:length(err.vector)) {
+    set.seed(i)
+    w <- matrix(0, 1, nrow(x.trn))
+    w.pocket <- w
+    yt <- sign(w %*% x.trn)
+    yt[yt == 0] <- -1
+    t <- 0
+    err.pocket <- sum(yt != y.trn)
+    while (length(which(yt != y.trn)) > 0) {
+        s <- which(yt != y.trn)
+        n <- sample(s, 1)
+        w <- w + y.trn[n] * x.trn[,n]
+        t <- t + 1
+    
+        yt <- sign(w %*% x.trn)
+        yt[yt == 0] <- -1
+        
+        err.t <- sum(yt != y.trn)
+        if (err.pocket > err.t) {
+            err.pocket <- err.t
+            w.pocket <- w
+        }
+        
+        if (t == 50) {
+            break
+        }
+    }
+    y.pred <- sign(w.pocket %*% x.tst)
+    y.pred[y.pred == 0] <- -1
+    err.vector[i] <- sum(y.pred != y.tst)
+}
+print(mean(err.vector)/length(y.tst))
+```
+
+Above algorithm shows the results is error on test data is `0.133212`.
+
+# Question 19
+
+```{r q19}
+err.vector <- matrix(0, 1, 2000)
+for (i in 1:length(err.vector)) {
+    set.seed(i)
+    w <- matrix(0, 1, nrow(x.trn))
+    w.pocket <- w
+    yt <- sign(w %*% x.trn)
+    yt[yt == 0] <- -1
+    t <- 0
+    err.pocket <- sum(yt != y.trn)
+    while (length(which(yt != y.trn)) > 0) {
+        s <- which(yt != y.trn)
+        n <- sample(s, 1)
+        w <- w + y.trn[n] * x.trn[,n]
+        t <- t + 1
+    
+        yt <- sign(w %*% x.trn)
+        yt[yt == 0] <- -1
+        
+        err.t <- sum(yt != y.trn)
+        if (err.pocket > err.t) {
+            err.pocket <- err.t
+            w.pocket <- w
+        }
+        
+        if (t == 50) {
+            break
+        }
+    }
+    y.pred <- sign(w %*% x.tst)
+    y.pred[y.pred == 0] <- -1
+    err.vector[i] <- sum(y.pred != y.tst)
+}
+print(mean(err.vector)/length(y.tst))
+```
+
+Above algorithm shows the results is error on test data is `0.356041`.
+
+# Question 20
+
+```{r q20}
+err.vector <- matrix(0, 1, 2000)
+for (i in 1:length(err.vector)) {
+    set.seed(i)
+    w <- matrix(0, 1, nrow(x.trn))
+    w.pocket <- w
+    yt <- sign(w %*% x.trn)
+    yt[yt == 0] <- -1
+    t <- 0
+    err.pocket <- sum(yt != y.trn)
+    while (length(which(yt != y.trn)) > 0) {
+        s <- which(yt != y.trn)
+        n <- sample(s, 1)
+        w <- w + y.trn[n] * x.trn[,n]
+        t <- t + 1
+    
+        yt <- sign(w %*% x.trn)
+        yt[yt == 0] <- -1
+        
+        err.t <- sum(yt != y.trn)
+        if (err.pocket > err.t) {
+            err.pocket <- err.t
+            w.pocket <- w
+        }
+        
+        if (t == 100) {
+            break
+        }
+    }
+    y.pred <- sign(w.pocket %*% x.tst)
+    y.pred[y.pred == 0] <- -1
+    err.vector[i] <- sum(y.pred != y.tst)
+}
+print(mean(err.vector)/length(y.tst))
+```
+
+Above algorithm shows the results is error on test data is `r mean(err.vector)/length(y.tst)`.
+

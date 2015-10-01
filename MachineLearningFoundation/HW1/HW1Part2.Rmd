@@ -1,0 +1,124 @@
+---
+title: "HW1Part2"
+author: "Yang Ge"
+date: "September 28, 2015"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setoptions, echo=FALSE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# Question 15
+
+We first read the data, and patch x0 to x and split x and y.
+
+```{r preprocess}
+data <- read.table("ntumlone_hw1_hw1_15_train.dat", header = FALSE)
+m <- data.matrix(data)
+m <- cbind(matrix(1, nrow(m), 1), m)
+x <- t(m[,-ncol(m)])
+y <- m[,ncol(m)]
+```
+
+```{r PLA.naive.cycle}
+w <- matrix(0, 1, nrow(x))
+t <- 0
+yt <- sign(w %*% x)
+yt[yt == 0] <- -1
+lastn <- 1
+while (length(which(yt != y)) > 0) {
+    n <- lastn
+    while (y[n] == yt[n]) {
+        n <- (n+1) %% length(y)
+        if (n == 0) {
+            n <- length(y)
+        }
+    }
+    w <- w + y[n] * x[,n]
+    t <- t + 1
+    lastn <- n
+    
+    yt <- sign(w %*% x)
+    yt[yt == 0] <- -1
+}
+t
+```
+
+So based on the above algorithm, we have `t = 37`.
+
+# Question 16
+
+So based on the below algorithm, we have `t = 40.5175`.
+
+```{r PLA.random.order}
+t.vector <- matrix(0, 1, 2000)
+for (i in 1:length(t.vector)) {
+    set.seed(i)
+    ord <- sample(1:length(y))
+    
+    w <- matrix(0, 1, nrow(x))
+    t <- 0
+    yt <- sign(w %*% x)
+    yt[yt == 0] <- -1
+    lastn <- 1
+    while (length(which(yt != y)) > 0) {
+        n <- lastn
+        while (y[ord[n]] == yt[ord[n]]) {
+            n <- (n+1) %% length(y)
+            if (n == 0) {
+                n <- length(y)
+            }
+        }
+        w <- w + y[ord[n]] * x[,ord[n]]
+        t <- t + 1
+        lastn <- n
+        
+        yt <- sign(w %*% x)
+        yt[yt == 0] <- -1
+    }
+    t.vector[i] <- t
+}
+mean(t.vector)
+```
+
+# Problem 17
+
+```{r PLA.random.order.ita}
+t.vector <- matrix(0, 1, 2000)
+ita <- 0.5
+for (i in 1:length(t.vector)) {
+    set.seed(i)
+    ord <- sample(1:length(y))
+    
+    w <- matrix(0, 1, nrow(x))
+    t <- 0
+    yt <- sign(w %*% x)
+    yt[yt == 0] <- -1
+    lastn <- 1
+    while (length(which(yt != y)) > 0) {
+        n <- lastn
+        while (y[ord[n]] == yt[ord[n]]) {
+            n <- (n+1) %% length(y)
+            if (n == 0) {
+                n <- length(y)
+            }
+        }
+        w <- w + ita * y[ord[n]] * x[,ord[n]]
+        t <- t + 1
+        lastn <- n
+        
+        yt <- sign(w %*% x)
+        yt[yt == 0] <- -1
+    }
+    t.vector[i] <- t
+}
+mean(t.vector)
+```
+
+So based on the below algorithm, we have `r mean(t.vector)`.
+Note that it's same as problem 16, because initially we have `w = 0`.
+

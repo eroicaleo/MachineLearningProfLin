@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+Here is a code chunk.
+
+<<foo, fig.height=4>>=
+1+1
+letters
+chartr('xie', 'XIE', c('xie yihui', 'Yihui Xie'))
+par(mar=c(4, 4, .2, .2))
+plot(rnorm(100))
+@
+
+You can also write inline expressions, e.g. $\pi=\Sexpr{pi}$, and \Sexpr{1.598673e8} is a big number.
+
+\section{Problem 6}
+
+Let's say $N = 4$ and $L = 5$, then $g(x_6), g(x_8)$ will be wrong. $E_{OTS} = 2$.
+The options with $\lceil \frac{N+L}{2} \rceil$ are gone.\\
+Now Let's say $N = 5$ and $L = 5$, then $g(x_6), g(x_8), g(x_10)$ will be wrong.
+$E_{OTS} = 3$. \\
+The right option is $\lfloor \frac{N+L}{2} \rfloor - \lfloor \frac{L}{2} \rfloor$.
+
+\section{Problem 7}
+The output of $f$ on $D$ is fixed, it can only vary on $D^{L}=\{x_l,y_l\}_{l=N+1}^{N+L}$.
+So there are $2^L$ possible differnt $f$s.
+
+\section{Problem 8}
+My answer is 
+\begin{equation}
+E_f[E_{OTS}(A_1(D), f)] = E_f[E_{OTS}(A_2(D), f)] > E_f[E_{OTS}(f, f)] = 0
+\end{equation}
+Because for any single $f$ or $f'$, no matter if it generates $D$, the $OTS$ error
+can be different. Apparently, $E_{OTS}(A_1(D))$ won't be 0 for all $f$, because it is
+deterministic.
+
+\section{Problem 9}
+It is $C_{10}^5 * (1/2)^{10} = 0.2460938$. Basically select 5 out of 10, each of them has 50\% probability.
+
+\section{Problem 10}
+It is $0.9^9 * 0.1^1 = 0.03874205$.
+
+\section{Problem 11}
+It is $0.1^9 * 0.9^1 = 9e-10$. So none of the choices.
+
+\section{Problem 12}
+It is $2*exp(-2*(0.8)^2*10) = 5.521545e-06$.
+
+\section{Problem 13}
+It is $(\frac{1}{2})^5 = 8/256$.
+
+\section{Problem 14}
+The probablity of 1 is all orange is $8/256$, so same for other numbers.
+Note than if 1 is all orange than 3 is all orange too. Same for 4 and 6.\\
+Then the answer is $32/256$.
+
+
+\end{document}
