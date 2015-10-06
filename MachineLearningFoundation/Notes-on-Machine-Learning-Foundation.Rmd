@@ -1,0 +1,127 @@
+---
+title: "Notes on Machine Learning Foundations"
+author: "Yang Ge"
+date: "September 28, 2015"
+output: 
+  html_document:
+    keep_md: true
+---
+
+# Week 2
+
+## 1. When can machine learn?
+
+### Hypothesis: 'perceptron'
+
+Each "tall" $w$ represents a hypothesis $h$ and multiply the "tall" $x$.
+
+Perceptron is equivalent to linear (binary) classifier.
+
+### Perceptron Learning Algorithm
+
+want g is close to f (hard when _f_ unknow)
+
+Ideally,
+$$
+g(x_n) = f(x_n) = y_n
+$$
+
+Difficulty: H is infinite space.
+
+Idea: start from some g0, and correct its mistakes on D.
+
+Algorithm:
+1. Find a mistakes xn(t)
+2. Updates w(t+1) <- w(t) + yn(t)\*xn(t)
+Geometric explaination: if the angle between w and x is too big, we make it
+smaller, otherwise, make it bigger.
+
+A fault confessed is half redressed.
+
+## Guarantee of PLA
+
+The normalized inner product of w_f and w_t will increase monotonously.
+It will stop at certain iteration.
+
+## Non separable data
+
+Pros: simple to implement, fast, work for any dimension d.
+Cons:
+* Assume linearly separable.
+* not fully sure how long halting takes (rho depends on wf)
+
+PLA Algorithm
+
+Run enough iteration.
+
+# Types of Learning
+
+## Learning with different output space
+
+Binary classification
+* Credit card approval
+* Email spam/not spam
+* Patient sick/not sick
+* ad profitable/not profitable
+* answer correct/incorrect
+
+## Learning with different labels
+## Learning with different protocols
+## Learning with different input space
+
+# Lecture 4, Feasible of Learning
+
+## Learning is impossible?
+
+No free launch!
+
+## Probability to the Rescue
+
+Bin model.
+
+in sample $\nu$ is likely close to unknow $\mu$.
+
+Hoeffding's Inequality:
+
+$$
+Pr(|\mu-\nu| \geq \epsilon) \leq exp(-2\epsilon^{2}N)
+$$
+
+**_Probably Approximately Correct_** (PAC).
+
+## Connection to Learning
+
+Learning.
+
+Unknown **f**
+target f(x)
+
+h is wrong/orange equivalent h(x) not equals to f(x)
+h is right/green
+Check h on D = {(xn, yn)}
+
+### Added components
+
+$E_{in}$: in sample
+
+$E_{out}$: out sample
+
+### The Formal Guarantee
+
+* Valid for all $N$ and $\epsilon$.
+* Doesn't depend on $E_{out}(h)$, $f$ and $P$ can stay unknown.
+* $E_{in}(h) = E_{out}(h) is PAC.
+
+## Connection to real learning
+
+### BAD Data for Many $h$
+
+no 'freedom of choice' by A, 踩到雷。
+
+### Bound of BAD data
+
+If $|\mathcal{H}| = M$ is finite, $N$ large enough, for whatever $g$ picked by $\mathcal{A}$, Eout(g) = Ein(g).
+
+If A finds one g with $E_{in}(g) = 0$, PAC guarantees for $E_{out}(g) = 0$.
+
+# Lecture 5
