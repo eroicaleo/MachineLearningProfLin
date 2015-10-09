@@ -1,0 +1,40 @@
+---
+title: "HW2Part1"
+author: "Yang Ge"
+date: "October 8, 2015"
+output: 
+  html_document:
+    keep_md: true
+    toc: true
+---
+
+# Problem 1
+
+$$
+Pr(h\ \text{makes mistakes}) = Pr(y=f(x) \cap h(x) \ne f(x)) + Pr(y \ne f(x) \cap h(x) = f(x))
+= \lambda\mu + (1-\lambda)(1-\mu)
+$$
+
+# Problem 2
+
+if $\lambda = 0.5$, above equation becomes a constant 0.5.
+
+# Problem 3
+
+```{r, echo=TRUE, cache=TRUE}
+sample.size <- c(480000, 440000, 500000, 420000, 460000)
+delta <- 0.05
+epsilon <- 0.05
+dvc <- 10
+compute.gen.error <- function(N) {
+    sqrt(8/N * log(4*(2*N)^dvc / delta) )
+}
+gen.error <- sapply(sample.size, compute.gen.error)
+gen.error
+gen.error.diff <- abs(gen.error - epsilon)
+q3.ans <- sample.size[which.min(gen.error.diff)]
+q3.ans
+```
+
+The above code show the anwser should be `r q3.ans`
+
