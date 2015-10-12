@@ -1,0 +1,72 @@
+---
+title: "HW2Part2"
+author: "Yang Ge"
+date: "October 9, 2015"
+author: "Yang Ge"
+date: "October 8, 2015"
+output: 
+  html_document:
+    keep_md: true
+    toc: true
+---
+
+```{r setoptions, echo=TRUE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+```{r}
+set.seed(0)
+
+decision.stump <- function(sp, s) {
+    y.pred <- rep(0, N)
+    y.pred[x >= sp] <- 1 * s
+    y.pred[x < sp]  <- -1 * s
+    pred.error <- sum(y.pred != y)
+}
+    
+N <- 20
+T <- 5000
+ein.array <- rep(0, T)
+eout.array <- rep(0, T)
+for (ix in 1:T) {
+    x <- runif(N, min = -1, max = 1)
+    f.x <- sign(x)
+    
+    # Generate noise
+    noise <- runif(N, min = 0, max = 1)
+    noise[noise <= 0.2] <- -1
+    noise[noise > 0.2] <- 1
+    
+    y <- f.x * noise
+        
+    # generate stump
+    sort.x <- sort(x)
+    next.data <- sort.x[-c(N)]
+    next.data <- c(sort.x[1]-1, next.data)
+    stump <- (next.data + sort.x) / 2
+    
+    pred.error <- N
+    
+    pred.error.pos <- sapply(stump, decision.stump, 1)
+    pred.error.neg <- sapply(stump, decision.stump, -1)
+    
+    if (min(pred.error.neg) < min(pred.error.pos)) {
+        s <- -1
+        theta <- stump[which.min(pred.error.neg)]
+        Ein <- min(pred.error.neg) / N
+    } else {
+        s <- 1
+        theta <- stump[which.min(pred.error.pos)]
+        Ein <- min(pred.error.pos) / N
+    }
+    
+    Eout <- 0.5 + 0.3*s*(abs(theta)-1)
+    
+    ein.array[ix] <- Ein
+    eout.array[ix] <- Eout
+}
+mean(ein.array)
+mean(eout.array)
+```
+

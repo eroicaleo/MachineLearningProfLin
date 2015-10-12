@@ -8,6 +8,11 @@ output:
     toc: true
 ---
 
+```{r setoptions, echo=TRUE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
 # Problem 1
 
 $$
@@ -38,3 +43,120 @@ q3.ans
 
 The above code show the anwser should be `r q3.ans`
 
+# Problem 4
+```{r}
+data.size <- seq(1000, 10000, 1000)
+dvc <- 50
+delta <- 0.05
+N <- 10000
+vcbound <- function(N) {
+    sqrt(8/N * log(4*(2*N)^dvc / delta) )
+}
+rademacher <- function(N) {
+    sqrt(2/N * log(2*N*(N)^dvc)) + sqrt(2/N*log(1/delta)) + 1/N 
+}
+vcvariant <- function(N) {
+    sqrt(16/N*log(2*(N)^dvc/sqrt(delta)))
+}
+parrondo <- function(N, e) {
+    sqrt(1/N *( 2*e + log(6*(2*N)^dvc/delta) ))
+}
+devroye <- function(N, e) {
+    sqrt( 1 / (2*N) * (4*e*(1+e) + ( log(4) + 2*dvc*log(N) - log(delta) ) ) )
+}
+print("vcbound when N = 10000:")
+vcbound(N)
+rademacher(N)
+vcvariant(N)
+parrondo(N, 0.2237)
+devroye(N, 0.215228)
+```
+
+The above code show the anwser should be Parrondo.
+
+# Problem 5
+```{r}
+N <- 5
+vcbound(N)
+rademacher(N)
+vcvariant(N)
+parrondo(N, 5.101363)
+devroye(N, 5.593126)
+```
+
+The above code show the anwser should still be Parrondo.
+
+# Problem 6
+
+We select 2 slots among first $N$ slots and then plus 2 all -1 and all +1 cases.
+So it's $2\times\binom{N}{2}+2 = N^2 - N + 2$
+
+# Problem 7
+
+Then the VC dimension is 3. When $N = 4$, it cannot be shattered.
+
+# Problem 8
+
+Just consider rotating all points to the x-axis, then it's equivalent to positive interval.
+So it is:
+$$
+m_{\mathcal{H}}(N) = \binom{N+1}{2} + 1 = \frac{N^2}{2} + \frac{N}{2} + 1 \ll 2^N
+$$
+
+# Problem 9
+
+Polynomial with degree $D$ can have up to $D$ roots, so as long as we arrange the roots
+according to the data points, we can shatter $D+1$ points. Which means the VC dimension is $D+1$.
+For example, say, $D=2$, we can shatter 3 points.
+
+# Problem 10
+
+The notation is confusing, $t$ is fixed for one hypothesis, \boldmath$S$\unboldmath is also fixed for one
+hypothesis. Let me assume $d = 2$, then for a given t, the 2-D plane is divided into 4 parts. If there are
+5 data points, then at least two of them will be in the same parts. And it cannot be shattered.
+So I think the VC dimension is $2^d$.
+
+# Problem 11
+
+It's like we have an infinity $D$ in problem 9, so the answer is $\infty$
+
+# Problem 12
+
+Because we have the following equations, so my intuition is that none of them is right.
+
+$$
+m_{\mathcal{H}}(N) \leq N^{d_{VC}}, if N \geq 2, d_{VC} \geq 2
+$$
+
+But the answer turned out to be
+
+$$
+\overset{min}{1\leq i \leq N-1} 2^i m_{\mathcal{H}}(N-i)
+$$
+
+# Problem 13
+
+Don't know yet. But the answer is $N$
+
+# Problem 14
+
+It's easy. First, the intersection can be empty set, so the left will be $0\leq$.
+The right side is also obvious.
+
+# Problem 15
+
+The left hand side is easy. But I don't understand the right side
+
+$$
+K-1 + \sum_{k=1}^{K} d_{vc}(\mathcal{H})
+$$
+
+# Problem 16
+
+Just need to consider when $\theta = 0$, if $s = 1$, then we have 80% chance to predict right.
+If $s = -1$, then we only have 20% chance to predict right, So then answer should be the following.
+Note that it asks $E_{out}$
+
+$$
+0.5 + 0.3s(|\theta| - 1)
+$$

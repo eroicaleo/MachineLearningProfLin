@@ -1,0 +1,82 @@
+---
+title: "HW2Part3"
+author: "Yang Ge"
+date: "October 12, 2015"
+output: 
+  html_document:
+    keep_md: true
+    toc: true
+---
+
+```{r setoptions, echo=TRUE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+```{r loaddata}
+trn <- read.table("ntumlone_hw2_hw2_train.dat")
+tst <- read.table("ntumlone_hw2_hw2_test.dat")
+
+trn.x <- trn[,-c(ncol(trn))]
+trn.y <- trn[,ncol(trn)]
+
+tst.x <- tst[,-c(ncol(tst))]
+tst.y <- tst[,ncol(tst)]
+```
+
+```{r train}
+decision.stump <- function(sp, s) {
+    y.pred <- rep(0, N)
+    y.pred[x >= sp] <- 1 * s
+    y.pred[x < sp]  <- -1 * s
+    pred.error <- sum(y.pred != y)
+}
+
+s.array <- rep(0, ncol(trn.x))
+theta.array <- rep(0, ncol(trn.x))
+ein.array <- rep(0, ncol(trn.x))
+    
+for (d in 1:ncol(trn.x)) {
+    x <- trn.x[,d]
+    N <- length(x)
+    y <- trn.y
+    
+    sort.x <- unique(sort(x))
+    next.data <- sort.x[-c(length(sort.x))]
+    next.data <- c(sort.x[1]-1, next.data)
+    stump <- (next.data + sort.x) / 2
+    
+    pred.error <- N
+    
+    pred.error.pos <- sapply(stump, decision.stump, 1)
+    pred.error.neg <- sapply(stump, decision.stump, -1)
+    
+    if (min(pred.error.neg) < min(pred.error.pos)) {
+        s <- -1
+        theta <- stump[which.min(pred.error.neg)]
+        Ein <- min(pred.error.neg) / N
+    } else {
+        s <- 1
+        theta <- stump[which.min(pred.error.pos)]
+        Ein <- min(pred.error.pos) / N
+    }
+    
+    s.array[d] <- s
+    theta.array[d] <- theta
+    ein.array[d] <- Ein
+}
+
+model.dim <- which.min(ein.array)
+model.s <- s.array[model.dim]
+model.theta <- theta.array[model.dim]
+min(ein.array)    
+```
+
+```{r test}
+x <- tst.x[,model.dim]
+y <- tst.y
+N <- length(x)
+error <- decision.stump(sp = model.theta, s = model.s) / N
+error
+```
+
