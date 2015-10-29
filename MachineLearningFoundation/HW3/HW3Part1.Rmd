@@ -1,0 +1,185 @@
+---
+title: "HW3Part1"
+author: "Yang Ge"
+date: "October 28, 2015"
+output:
+  html_document:
+    keep_md: true
+    toc: true
+---
+
+```{r setoptions, echo=TRUE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# Problem 1
+
+```{r problem1}
+N <- c(10, 25, 100, 500, 1000)
+expected.ein <- function(N) {
+  sigma <- 0.1
+  d <- 8
+  sigma^2 * (1 - (d+1)/N)
+}
+ein <- sapply(N, expected.ein)
+ein
+```
+
+From above resutls, we know $N$ should be `r 100`.
+
+# Problem 2
+
+See the discussion [here](https://class.coursera.org/ntumlone-003/forum/thread?thread_id=158)
+And the notes [here](http://www.stat.ucla.edu/~cocteau/stat201b/lectures/lecture3.pdf)
+about hat matrix.
+
+* a) not correct, because the eigen value are not always positive
+* b) wrong, for the same reason
+* c) wrong, see the links above
+* d) correct, in lecture notes, we have $\text{trace}(I-H) = N - (d+1)$.
+  Which means $\text{trace}(H) = (d+1)$
+* e) wrong, we have $H^2 = (X(X^TX)^{-1}X^T)^2 = XX^T$. So $H^{1126} = H^2 \ne H$.
+
+Conclusion is "none of the other choices"
+
+# Problem 3
+
+* $err(w) = \text{max}(0, -y w^T x)$
+    * when $y = 1$, $err(w) = \text{max}(0, -s)$. When $-1 < s < 0$, $err(w) < 1$
+      it's not an upper bound for 0/1 error.
+* $err(w) = (\text{max}(0, 1 - y w^T x))^2$
+    * when $y = -1$, $err(w) = (\text{max}(0, 1+s))^2$. It's an valid upper
+      bound for 0/1 error.
+    * when $y = 1$, $err(w) = (\text{max}(0, 1-s))^2$. It's an valid upper
+      bound for 0/1 error.
+* $err(w) = -y w^T x$
+    * when $y = 1$, $err(w) = -s$. When $-1 < s < 0$, $err(w) < 1$
+      it's not an upper bound for 0/1 error.
+* $err(w) = \theta(-y w^T x)$
+    * when $y = 1$, $err(w) = \theta(-s)$. When $-\infty < s < 0$, $err(w) < 1$
+      it's not an upper bound for 0/1 error.
+
+In conclusion, $err(w) = (\text{max}(0, 1 - y w^T x))^2$ is a valid upper bound.
+
+# Problem 4
+
+Following the discussion in problem 3, only $err(w) = \text{max}(0, -y w^T x)$ is
+not everywhere-differentiable function of $w$.
+
+# Problem 5
+
+* $err(w) = \text{max}(0, -y w^T x)$
+    * when $y = 1$, $err(w) = \text{max}(0, -s)$. When $s < 0$, $err(w) = -s = - w^T x$.
+      Then $\nabla err(w) = -x = -yx$. $w_{t+1} \leftarrow w_{t} - \nabla err(w) = w_{t} + yx = w_{t} + [y \ne \text{sign}(s)]yx$
+    * when $y = 1$, $err(w) = \text{max}(0, -s)$. When $s >= 0$, $err(w) = 0$.
+      Then $\nabla err(w) = 0$. $w_{t+1} \leftarrow w_{t} - \nabla err(w) = w_{t} + 0 = w_{t} + [y \ne \text{sign}(s)]yx$
+
+In conclusion, $err(w) = \text{max}(0, -y w^T x)$ results in PLA.
+
+# Problem 6
+
+$$
+\nabla E(u, v) = (
+  e^u + ve^{uv} + 2u - 2v - 3,
+  2e^{2v} + ue^{uv} - 2u + 4v - 2
+  )
+$$
+
+$$
+\nabla E(0, 0) = (
+1 - 3,
+2 - 2
+) = (-2, 0)
+$$
+
+# Problem 7
+
+```{r problem 7}
+prob7.nabla <- function(u, v) {
+  u.next <- exp(u) + v*exp(u*v) + 2*u - 2*v - 3
+  v.next <- 2*exp(2*v) + u*exp(u*v) - 2*u + 4*v - 2
+  c(u.next, v.next)
+}
+prob7.E <- function(u, v) {
+    exp(u) + exp(2*v) + exp(u*v) + u^2 - 2*u*v + 2*v^2 - 3*u - 2*v
+}
+w <- c(0, 0)
+for (i in 1:5) {
+  w = w - 0.01 * prob7.nabla(w[1], w[2])
+  print(w)
+}
+prob7.E(w[1], w[2])
+```
+
+From the above, the answer should be 2.825
+
+# Problem 8
+
+$$
+b_{uu} = e^u + v^2e{uv} + 2
+$$
+
+$$
+b_{vv} = 4*e{2v} + u^2e{uv} + 4
+$$
+
+$$
+b_{uv} = e^{uv} + uve^{uv} - 2
+$$
+
+So the answer is $(3,8,-1,-2,0,3)$.
+
+# Problem 9
+
+$$
+\frac{\partial E^{2}(\Delta u, \Delta v)}{\partial \Delta u}
+= 2b_{uu} \Delta u + 2 b_{uv} \Delta v + b_u
+$$
+
+$$
+\frac{\partial E^{2}(\Delta u, \Delta v)}{\partial \Delta v}
+= 2b_{vv} \Delta v + 2 b_{uv} \Delta u + b_v
+$$
+
+Set the above 2 to 0, we have Newton direction is $-(\nabla^2E(u,v))^{-1} \nabla E(u,v)$
+
+# Problem 10
+
+```{r problem10}
+prob10.hessian <- function(u, v) {
+  buu <- exp(u) + v^2 * exp(u*v) + 2
+  bvv <- 4*exp(2*v) + u^2 * exp(u*v) + 4
+  buv <- exp(u*v) + u*v * exp(u*v) - 2
+  matrix(c(buu, buv, buv, bvv), nrow = 2, ncol = 2)
+}
+w <- c(0, 0)
+for (i in 1:5) {
+    hessian <- prob10.hessian(w[1], w[2])
+    newtow <- solve(hessian, prob7.nabla(w[1], w[2]))
+    w <- w - newtow
+    # print(hessian)
+    print(w)
+}
+prob7.E(w[1], w[2])
+```
+
+Based on above discussion, the answer is 2.361.
+
+# Problem 11
+
+```{r problem11}
+plot(1, 1, type = "p", col = "red", xlab = "x", ylab = "y", xlim = c(-2, 2), ylim = c(-2, 2))
+points(1, -1, col = "red")
+points(-1, -1, col = "red")
+points(-1, 1, col = "red")
+points(0, 0, col = "red")
+points(1, 0, col = "red")
+```
+
+From the above figure, we know the six points can be shattered.
+Plus, in the lecture, we know the VC dimension should be $\tilde{d} + 1$.
+
+# Problem 12
+
+I think it should be $\infty$. Note that $N$ is not fixed.
