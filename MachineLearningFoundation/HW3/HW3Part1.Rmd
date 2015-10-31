@@ -116,19 +116,20 @@ From the above, the answer should be 2.825
 
 # Problem 8
 
+First, see the 2-D Taylor expansion [here](http://www.math.ubc.ca/~feldman/m200/taylor2dSlides.pdf)
 $$
-b_{uu} = e^u + v^2e{uv} + 2
+b_{uu} = \frac{1}{2} (e^u + v^2e{uv} + 2)
 $$
 
 $$
-b_{vv} = 4*e{2v} + u^2e{uv} + 4
+b_{vv} = \frac{1}{2} (4*e{2v} + u^2e{uv} + 4)
 $$
 
 $$
 b_{uv} = e^{uv} + uve^{uv} - 2
 $$
 
-So the answer is $(3,8,-1,-2,0,3)$.
+So the answer is $(1.5,4,-1,-2,0,3)$.
 
 # Problem 9
 
@@ -183,3 +184,177 @@ Plus, in the lecture, we know the VC dimension should be $\tilde{d} + 1$.
 # Problem 12
 
 I think it should be $\infty$. Note that $N$ is not fixed.
+
+# Problem 13
+
+```{r problem13}
+library(plotrix)
+set.seed(0)
+N <- 1000
+T <- 1000
+err.array <- rep(c(0), T)
+
+for (i in 1:T) {
+    x0 <- rep(c(1), N)
+    x1 <- runif(N, min = -1, max = 1)
+    x2 <- runif(N, min = -1, max = 1)
+    r2 <- x1^2 + x2^2
+    y <- rep(c(0), N)
+    y[r2 >= 0.6] <- 1
+    y[r2 < 0.6] <- -1
+
+    # Add noise
+    noise <- runif(N, min = 0.0, max = 1.0)
+    flip <- rep(c(0), N)
+    flip[noise > 0.1] <- 1
+    flip[noise <= 0.1] <- -1
+    y <- y * flip
+
+    # Build dataframe
+    data.trn <- data.frame(x0 = x0, x1 = x1, x2 = x2, y = y)
+
+    # Linear Regression
+    model <- lm(y ~ x1 + x2, data = data.trn)
+    pred.trn <- sign(predict(model, data.trn))
+    pred.err <- sum(pred.trn != y)
+
+    err.array[i] <- pred.err
+}
+
+err.avg <- mean(err.array) / N
+
+# Visualize
+plot(x1, x2, col = as.factor(y), xlim = c(-2, 2), ylim = c(-2, 2), pch = 19, asp = 1)
+draw.circle(0.0, 0.0, radius = sqrt(0.6))
+w <- coef(model)
+b = -(w["x1"] / w["x2"])
+a = -(w["(Intercept)"] / w["x2"])
+abline(a = a, b = b, lwd = 2)
+
+```
+
+Based on the above program, we can see the average error is `r err.avg`.
+
+# Problem 14
+
+```{r problem 14}
+set.seed(0)
+N <- 1000
+T <- 1000
+err.array <- rep(c(0), T)
+
+w.frame <- data.frame()
+
+for (i in 1:T) {
+    x0 <- rep(c(1), N)
+    x1 <- runif(N, min = -1, max = 1)
+    x2 <- runif(N, min = -1, max = 1)
+    r2 <- x1^2 + x2^2
+    y <- rep(c(0), N)
+    y[r2 >= 0.6] <- 1
+    y[r2 < 0.6] <- -1
+
+    # Add noise
+    noise <- runif(N, min = 0.0, max = 1.0)
+    flip <- rep(c(0), N)
+    flip[noise > 0.1] <- 1
+    flip[noise <= 0.1] <- -1
+    y <- y * flip
+
+    # Build dataframe
+    data.trn <- data.frame(x0 = x0, x1 = x1, x2 = x2, x1x2 = x1*x2, x1x1 = x1*x1, x2x2 = x2*x2, y = y)
+
+    # Linear Regression
+    model <- lm(y ~ x1 + x2 + x1x2 + x1x1 + x2x2, data = data.trn)
+
+    if (length(w.frame) == 0) {
+      w.frame <- data.frame(t(coef(model)))
+    } else {
+      w <- coef(model)
+      names(w) <- names(w.frame)
+      w.frame <- rbind(w.frame, t(w))
+    }
+
+    err.array[i] <- pred.err
+}
+
+w.mean <- colMeans(w.frame)
+print(w.mean)
+```
+
+# Problem 15
+
+```{r problem15}
+set.seed(0)
+N <- 1000
+T <- 1000
+err.array <- rep(c(0), T)
+
+for (i in 1:T) {
+    x1 <- runif(N, min = -1, max = 1)
+    x2 <- runif(N, min = -1, max = 1)
+    r2 <- x1^2 + x2^2
+    y <- rep(c(0), N)
+    y[r2 >= 0.6] <- 1
+    y[r2 < 0.6] <- -1
+
+    # Add noise
+    noise <- runif(N, min = 0.0, max = 1.0)
+    flip <- rep(c(0), N)
+    flip[noise > 0.1] <- 1
+    flip[noise <= 0.1] <- -1
+    y <- y * flip
+
+    # Build dataframe
+    data.trn <- data.frame(x1 = x1, x2 = x2, x1x2 = x1*x2, x1x1 = x1*x1, x2x2 = x2*x2, y = y)
+
+    # Linear Regression
+    model <- lm(y ~ x1 + x2 + x1x2 + x1x1 + x2x2, data = data.trn)
+
+    x1 <- runif(N, min = -1, max = 1)
+    x2 <- runif(N, min = -1, max = 1)
+    r2 <- x1^2 + x2^2
+    y <- rep(c(0), N)
+    y[r2 >= 0.6] <- 1
+    y[r2 < 0.6] <- -1
+
+    # Add noise
+    noise <- runif(N, min = 0.0, max = 1.0)
+    flip <- rep(c(0), N)
+    flip[noise > 0.1] <- 1
+    flip[noise <= 0.1] <- -1
+    y <- y * flip
+
+    # Build dataframe
+    data.tst <- data.frame(x1 = x1, x2 = x2, x1x2 = x1*x2, x1x1 = x1*x1, x2x2 = x2*x2, y = y)
+
+    pred.tst <- sign(predict(model, data.tst))
+    pred.err <- sum(pred.tst != y)
+
+    err.array[i] <- pred.err
+}
+
+err.avg <- mean(err.array) / N
+
+```
+
+# Problem 16
+
+$$
+\text{likelihood} = \prod_{n=1}^{N} h_{y_n}
+$$
+
+We want to minimize
+
+$$
+-\text{ln} (\prod_{n=1}^{N} h_{y_n}) = \sum_{n=1}^{N} (ln h_{y_n})
+= \sum_{n=1}^{N} ( \text{ln} \sum_{i=1}^{K} \text{exp}( w_i * x_n ) - w_{y_n}^T * x_n)
+$$
+
+# Problem 17
+
+Simply take the derivative of the above equation in problem 16.
+
+$$
+\frac{\partial E_{in}}{\partial E_{out}} = \sum_{n=1}^{N} (h_i(x_n) - [y_n = i]) x_n
+$$

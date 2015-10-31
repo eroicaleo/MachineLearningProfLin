@@ -1,0 +1,94 @@
+---
+title: "HW3Part2"
+author: "Yang Ge"
+date: "October 30, 2015"
+output:
+  html_document:
+    keep_md: true
+    toc: true
+---
+
+```{r setoptions, echo=TRUE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# Problem 18
+
+```{r problem18}
+# Read in data and preprocess
+setwd("GitHub/MachineLearningProfLin/MachineLearningFoundation/HW3/")
+data.trn <- read.table(file = "./ntumlone-hw3-hw3_train.dat")
+N <- nrow(data.trn)
+x.trn <- data.trn[,-c(ncol(data.trn))]
+x.trn <- transform(x.trn, x0 = 1)
+y.trn <- data.trn[,c(ncol(data.trn))]
+
+data.tst <- read.table(file = "./ntumlone-hw3-hw3_test.dat")
+x.tst <- data.tst[,-c(ncol(data.tst))]
+x.tst <- transform(x.tst, x0 = 1)
+y.tst <- data.tst[,c(ncol(data.tst))]
+
+# Initialize variables
+d <- ncol(x.trn)
+w <- as.matrix(rep(0, d))
+ita <- 0.01
+x.trn.matrix <- as.matrix(x.trn)
+x.tst.matrix <- as.matrix(x.tst)
+T <- 2000
+
+# Gradient descent
+for (t in 1:T) {
+    s <- x.trn.matrix %*% w * (-y.trn)
+    theta <- plogis(s)
+    nabla <- (1 / N) * t(theta * (-y.trn)) %*% x.trn.matrix
+    # updates w
+    w <- w - ita * t(nabla)
+}
+
+# Make prediction
+y.pred <- sign(x.trn.matrix %*% w)
+err.pred <- sum(y.pred != y.trn)
+
+# E_{out}
+y.pred.tst <- sign(x.tst.matrix %*% w)
+err.pred.tst <- sum(y.pred.tst != y.tst)
+eout <- err.pred.tst / nrow(x.tst)
+```
+
+From above code we can conclude, when $\ita = 0.001$, $E_{out} = 0.475$.
+And when $\ita = 0.01$, $E_{out} = 0.220$.
+
+# Problem 20
+
+```{r problem20}
+# Initialize variables
+w <- as.matrix(rep(0, d))
+ita <- 0.001
+T <- 2000
+
+# Stochastic Gradient descent
+for (t in 1:T) {
+    
+    id <- t %% N
+    if (id == 0) {
+        id <- N
+    }
+    
+    s <- x.trn.matrix %*% w * (-y.trn)
+    theta <- plogis(s)
+    stochastic.nabla <- t(theta * (-y.trn))[id] %*% x.trn.matrix[id,]
+    # updates w
+    w <- w - ita * t(stochastic.nabla)
+}
+
+# Make prediction
+y.pred <- sign(x.trn.matrix %*% w)
+err.pred <- sum(y.pred != y.trn)
+
+# E_{out}
+y.pred.tst <- sign(x.tst.matrix %*% w)
+err.pred.tst <- sum(y.pred.tst != y.tst)
+eout <- err.pred.tst / nrow(x.tst)
+```
+
