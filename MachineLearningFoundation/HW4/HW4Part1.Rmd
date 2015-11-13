@@ -1,0 +1,141 @@
+---
+title: "HW4Part1"
+author: "Yang Ge"
+date: "November 03, 2015"
+output:
+  html_document:
+    keep_md: true
+    toc: true
+---
+
+```{r setoptions, echo=TRUE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# Problem 1
+
+Assume $h* \in \mathcal{H}$ best approximates $f$. And $h'* \in \mathcal{H}'$ best
+approximates $f$ in $\mathcal{H}'$. Apparently, $h$ can approximates better than $h'$.
+So if we use $\mathcal{H}'$, the deterministic noise will increase.
+
+# Problem 2
+
+We have:
+
+$$
+\mathcal{H}(Q, c, Q_{o}) = \{h|h(x) = w^T z \in \mathcal{H}_Q; w_q = c \text{for } q \ge Q_o\}
+$$
+
+So:
+
+$$
+\mathcal{H}(10, 0, 3) = \{h|h(x) = \sum_{q = 0}^{2} w_q L_q(x)\}
+$$
+
+$$
+\mathcal{H}(10, 0, 4) = \{h|h(x) = \sum_{q = 0}^{3} w_q L_q(x)\}
+$$
+
+Then we have:
+
+$$
+\mathcal{H}_2 = \mathcal{H}(10, 0, 3) \subset \mathcal{H}(10, 0, 4)
+$$
+
+# Problem 3
+
+Since we have:
+
+$$
+\nabla E_{aug}(w) = \nabla E_{in}(w) + \frac{2 \lambda}{N} w
+$$
+
+We have:
+$$
+w_{t+1} \leftarrow w_{t} - \eta ( \nabla E_{in}(w_t) + \frac{2 \lambda}{N} w_t )
+= (1 - \frac{2 \eta \lambda}{N}) w_t - \eta \nabla E_{in}(w_t)
+$$
+
+# Problem 4
+
+Bigger $\lambda$ means smaller $C$, which is $\begin{Vmatrix} w \end{Vmatrix}$.
+$\begin{Vmatrix} w_{\text{REG}}(\lambda) \end{Vmatrix}$ is an non-increasing function
+of $\lambda$.
+
+# Problem 5
+
+We first consider $h_0 = b_0$. Let $x_0 = (-1, 0), x_1 = (\rho, 1), x_2 = (1, 0)$
+
+* If $x_0, x_2$ is used for training, $h_0(x) = 0$. $E_{loocv} = 1$.
+* If $x_0, x_1$ is used for training, $h_0(x) = 0.5$. $E_{loocv} = 0.25$.
+* If $x_1, x_2$ is used for training, $h_0(x) = 0.5$. $E_{loocv} = 0.25$.
+
+We first consider $h_1 = a_1 x + b_1$.
+
+* If $x_0, x_2$ is used for training, $h_1(x) = 0x+0$. $E_{loocv} = 1$.
+* If $x_0, x_1$ is used for training, $h_1(x) = \frac{1}{\rho+1} x + \frac{1}{\rho+1}$.
+  $E_{loocv} = (\frac{2}{\rho+1})^2$.
+* If $x_1, x_2$ is used for training, $h_1(x) = \frac{1}{\rho-1} x + \frac{-1}{\rho-1}$.
+  $E_{loocv} = (\frac{2}{\rho-1})^2$.
+
+From the below R code, we can see none the answers are correct.
+
+```{r problem5}
+h1 <- function(rho) {
+    4 / (rho+1)^2 + 4 / (rho-1)^2
+}
+h0 <- function(rho) {
+    0.5
+}
+rho1 = sqrt(sqrt(3) + 4)
+rho2 = sqrt(sqrt(3) - 1)
+rho3 = sqrt(9+4*sqrt(6))
+rho4 = sqrt(9-sqrt(6))
+
+print(h1(rho1))
+print(h0(rho1))
+print(h1(rho2))
+print(h0(rho2))
+print(h1(rho3))
+print(h0(rho3))
+print(h1(rho4))
+print(h0(rho4))
+
+x <- seq(0, 10, 0.1)
+y1 <- h1(x)
+y0 <- h0(x)
+plot(x, y1, type = "l", ylim = c(0, 50))
+abline(h = y0, col = "red")
+```
+
+# Problem 6
+
+After first game, there are still 4 games left. Then there are at most $2^4 = 16$ possible
+outcomes.
+
+# Problem 7
+
+The send needs to spend $10 * \sum_{i = 0}^5 2^i = 630$ NTD. He can earn 1000 NTD.
+The profit is 370 NTD.
+
+# Problem 8
+
+Because we just use *one* equation we come up with derivation, that is our hypothesis set, so $M = 1$.
+
+# Problem 9
+
+Just use Hoeffding's inequility,
+
+```{r problem9}
+p <- 2 * exp(-2 * 0.01^2 * 10000)
+```
+
+# Problem 10
+
+This is a sampling bias problem. Our $10000$ training data comes from the 'bias' $a(x)$.
+As long as the testing data is also 'biased' by $a(x)$, the Hoeffding's inequility guarantees the performance bound.
+So we need to apply $g(x)$ on top of $a(x)$, i.e. $a(x) \text{AND } g(x)$.
+
+# Problem 11
+

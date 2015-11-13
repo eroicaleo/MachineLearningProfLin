@@ -1,0 +1,171 @@
+---
+title: "HW4Part2"
+author: "Yang Ge"
+date: "November 5, 2015"
+output:
+  html_document:
+    keep_md: true
+    toc: true
+---
+
+```{r setoptions, echo=TRUE}
+library(knitr)
+opts_chunk$set(echo = TRUE, cache = TRUE)
+library(dplyr)
+```
+
+# Problem 13
+
+```{r problem13}
+setwd("C:/Users/YANGGE/Documents/GitHub/MachineLearningProfLin/MachineLearningFoundation/HW4/")
+dat.trn <- read.table("ntumlone-hw4-hw4_train.dat")
+dat.tst <- read.table("ntumlone-hw4-hw4_test.dat")
+
+# Preprocess the data
+lambda <- 10.0
+d <- ncol(dat.trn)
+N <- nrow(dat.trn)
+x.trn <- as.matrix(cbind(rep(1, N), dat.trn[, 1:d-1]))
+y.trn <- dat.trn[, d]
+x.tst <- as.matrix(cbind(rep(1, N), dat.tst[, 1:d-1]))
+y.tst <- dat.tst[, d]
+
+w.reg <- solve(t(x.trn) %*% x.trn + lambda*diag(d), t(x.trn) %*% y.trn)
+
+y.trn.pred <- sign(x.trn %*% w.reg)
+err.trn <- sum(y.trn != y.trn.pred) / N
+
+y.tst.pred <- sign(x.tst %*% w.reg)
+err.tst <- sum(y.tst != y.tst.pred) / nrow(x.tst)
+```
+
+From the above code, we know $E_{in} =$ `r err.trn`. And $E_{out} =$ `r err.tst`.
+
+# Problem 14
+
+```{r problem14}
+lambda.vector <- 10^c(2:-10)
+error.frame <- data.frame(lambda=double(), ein=double(), eout=double())
+nrow(error.frame)
+for (lambda in lambda.vector) {
+    w.reg <- solve(t(x.trn) %*% x.trn + lambda*diag(d), t(x.trn) %*% y.trn)
+
+    y.trn.pred <- sign(x.trn %*% w.reg)
+    err.trn <- sum(y.trn != y.trn.pred) / N
+
+    y.tst.pred <- sign(x.tst %*% w.reg)
+    err.tst <- sum(y.tst != y.tst.pred) / nrow(x.tst)
+
+    res <- data.frame(lambda = lambda, ein = err.trn, eout = err.tst)
+    if (nrow(error.frame) == 0) {
+        error.frame <- as.data.frame(res)
+    } else {
+        error.frame <- rbind(error.frame, res)
+    }
+}
+print(error.frame)
+```
+
+From the above code, we know when $lambda = 10^8$, we have $E_{in} = 0.015$.
+
+# Problem 15
+
+From the above code, we know when $lambda = 10^{-7}$, we have $E_{out} = 0.015$.
+
+# Problem 16
+
+```{r problem16}
+
+# Split the training and validation set
+x.trn <- as.matrix(cbind(rep(1, N), dat.trn[, 1:d-1]))
+y.trn <- dat.trn[, d]
+
+x.val <- x.trn[-c(1:120),]
+y.val <- y.trn[-c(1:120)]
+
+x.trn <- x.trn[c(1:120),]
+y.trn <- y.trn[c(1:120)]
+
+error.frame <- data.frame(lambda=double(), ein=double(), eout=double(), eval = double())
+for (lambda in lambda.vector) {
+    w.reg <- solve(t(x.trn) %*% x.trn + lambda*diag(d), t(x.trn) %*% y.trn)
+
+    y.trn.pred <- sign(x.trn %*% w.reg)
+    err.trn <- sum(y.trn != y.trn.pred) / nrow(x.trn)
+
+    y.val.pred <- sign(x.val %*% w.reg)
+    err.val <- sum(y.val != y.val.pred) / nrow(x.val)
+
+    y.tst.pred <- sign(x.tst %*% w.reg)
+    err.tst <- sum(y.tst != y.tst.pred) / nrow(x.tst)
+
+    res <- data.frame(lambda = lambda, ein = err.trn, eout = err.tst, eval = err.val)
+    if (nrow(error.frame) == 0) {
+        error.frame <- as.data.frame(res)
+    } else {
+        error.frame <- rbind(error.frame, res)
+    }
+}
+
+print(error.frame[11,])
+```
+
+When $\lambda = 1^{-8}$, we have $E_{in} = 0$
+
+# Problem 17
+
+When $\lambda = 1$, we have $E_{val} = 0.0375$
+
+# Problem 18
+
+Take $\lambda = 1$, we have $E_{in} = 0.035$ and $E_{out} = 0.020$
+
+# Problem 19
+
+```{r problem19}
+
+lambda.vector <- 10^c(2:-10)
+error.frame <- data.frame(cv=integer(), lambda=double(), ein=double(), eout=double(), eval = double())
+
+for (cv in 0:4) {
+    # Split the training and validation set
+    x.trn <- as.matrix(cbind(rep(1, N), dat.trn[, 1:d-1]))
+    y.trn <- dat.trn[, d]
+    
+    x.val <- x.trn[seq((cv*40+1), (cv+1)*40),]
+    y.val <- y.trn[seq((cv*40+1), (cv+1)*40)]
+    
+    x.trn <- x.trn[-seq((cv*40+1), (cv+1)*40),]
+    y.trn <- y.trn[-seq((cv*40+1), (cv+1)*40)]
+    
+    for (lambda in lambda.vector) {
+        w.reg <- solve(t(x.trn) %*% x.trn + lambda*diag(d), t(x.trn) %*% y.trn)
+    
+        y.trn.pred <- sign(x.trn %*% w.reg)
+        err.trn <- sum(y.trn != y.trn.pred) / nrow(x.trn)
+    
+        y.val.pred <- sign(x.val %*% w.reg)
+        err.val <- sum(y.val != y.val.pred) / nrow(x.val)
+    
+        y.tst.pred <- sign(x.tst %*% w.reg)
+        err.tst <- sum(y.tst != y.tst.pred) / nrow(x.tst)
+    
+        res <- data.frame(cv = cv, lambda = lambda, ein = err.trn, eout = err.tst, eval = err.val)
+        if (nrow(error.frame) == 0) {
+            error.frame <- as.data.frame(res)
+        } else {
+            error.frame <- rbind(error.frame, res)
+        }
+    }
+}
+
+error.frame.cv <- error.frame %>% group_by(lambda) %>% summarise(avg = mean(eval))
+
+print(error.frame.cv)
+```
+
+From above code, we know $E_{cv} = 0.03$ when $\lambda = 1^{-8}$
+
+# Problem 20
+
+From problem 20 and problem 14, we know $E_{in} = 0.015$ when $\lambda = 1^{-8}$. And $E_{out} = 0.020$.
